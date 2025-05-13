@@ -32,36 +32,43 @@
         });
 
         // Mostrar detalles del registro
-        function mostrarRegistroIndividual() {
-            const registroDetalle = document.getElementById('registroDetalle');
-            const verIndex = localStorage.getItem('verIndex');
-            const registros = JSON.parse(localStorage.getItem('registros')) || [];
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-            if (verIndex !== null && registros[verIndex]) {
-                const registro = registros[verIndex];
-                registroDetalle.innerHTML = `
-                    <p><strong>Nombre Completo:</strong> ${registro.nombre}</p>
-                    <p><strong>Fecha de Nacimiento:</strong> ${registro.fechaNacimiento}</p>
-                    <p><strong>Edad:</strong> ${registro.edad}</p>
-                    <p><strong>Alergias:</strong> ${registro.alergias || 'Ninguna'}</p>
-                    <p><strong>Enfermedades:</strong> ${registro.enfermedad || 'Ninguna'}</p>
-                    <p><strong>Medicamentos:</strong> ${registro.medicamentos || 'Ninguno'}</p>
-                    <p><strong>Seguro Médico:</strong> ${registro.seguroMedico || 'Ninguno'}</p>
-                    <p><strong>Domicilio:</strong> ${registro.domicilio}</p>
-                    <p><strong>Nacionalidad:</strong> ${registro.nacionalidad}</p>
-                    <h4>Contacto 1</h4>
-                    <p><strong>Nombre:</strong> ${registro.contacto1.nombre}</p>
-                    <p><strong>Parentesco:</strong> ${registro.contacto1.parentesco}</p>
-                    <p><strong>Teléfono:</strong> ${registro.contacto1.telefono}</p>
-                    <h4>Contacto 2</h4>
-                    <p><strong>Nombre:</strong> ${registro.contacto2.nombre || 'No proporcionado'}</p>
-                    <p><strong>Parentesco:</strong> ${registro.contacto2.parentesco || 'No proporcionado'}</p>
-                    <p><strong>Teléfono:</strong> ${registro.contacto2.telefono || 'No proporcionado'}</p>
-                `;
-            } else {
-                registroDetalle.innerHTML = `<p>No se encontró el registro.</p>`;
-            }
+function obtenerParametroURL(nombre) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(nombre);
+}
+
+async function mostrarRegistroIndividual() {
+    const id = obtenerParametroURL("id");
+    const registroDetalle = document.getElementById("registroDetalle");
+
+    try {
+        const docRef = doc(db, "registros", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const r = docSnap.data();
+            registroDetalle.innerHTML = `
+                <p><strong>Nombre Completo:</strong> ${r.nombre}</p>
+                <p><strong>Fecha de Nacimiento:</strong> ${r.fechaNacimiento}</p>
+                <p><strong>Edad:</strong> ${r.edad}</p>
+                <p><strong>Alergias:</strong> ${r.alergias}</p>
+                <p><strong>Enfermedad:</strong> ${r.enfermedad}</p>
+                <p><strong>Medicamentos:</strong> ${r.medicamentos}</p>
+                <p><strong>Seguro Médico:</strong> ${r.seguroMedico}</p>
+                <p><strong>Domicilio:</strong> ${r.domicilio}</p>
+                <p><strong>Nacionalidad:</strong> ${r.nacionalidad}</p>
+                <p><strong>Contacto 1:</strong> ${r.contacto1.nombre} (${r.contacto1.parentesco}, ${r.contacto1.telefono})</p>
+                <p><strong>Contacto 2:</strong> ${r.contacto2.nombre} (${r.contacto2.parentesco}, ${r.contacto2.telefono})</p>
+            `;
+        } else {
+            registroDetalle.innerHTML = `<p>Registro no encontrado.</p>`;
         }
+    } catch (error) {
+        registroDetalle.innerHTML = `<p>Error al cargar registro: ${error.message}</p>`;
+    }
+}
 
         // Obtener ubicación en vivo
         function obtenerUbicacionEnVivo() {
