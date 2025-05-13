@@ -8,8 +8,8 @@ function mostrarRegistroIndividual() {
     const verIndex = localStorage.getItem('verIndex');
     const registros = JSON.parse(localStorage.getItem('registros')) || [];
 
-    if (id !== null && registros[id]) {
-        const registro = registros[id];
+    if (verIndex !== null && registros[verIndex]) {
+        const registro = registros[verIndex];
         registroDetalle.innerHTML = `
             <p><strong>Nombre Completo:</strong> ${registro.nombre}</p>
             <p><strong>Fecha de Nacimiento:</strong> ${registro.fechaNacimiento}</p>
@@ -30,8 +30,8 @@ function mostrarRegistroIndividual() {
 
 // Función para editar el registro
 function editarRegistro() {
-    const id = obtenerParametroURL('id');
-    if (id !== null) {
-        window.location.href = `editar.html?id=${id}`; // Pasa el índice para editar
+    const verIndex = localStorage.getItem('verIndex');
+    if (verIndex !== null) {
+        window.location.href = `editar.html?index=${verIndex}`; // Pasa el índice para editar
     }
 }
