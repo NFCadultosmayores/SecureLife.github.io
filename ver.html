@@ -34,13 +34,10 @@
         // Mostrar detalles del registro
         import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-function obtenerParametroURL(nombre) {
-    const params = new URLSearchParams(window.location.search);
-    return params.get(nombre);
-}
-
-async function mostrarRegistroIndividual() {
+function mostrarRegistroIndividual() {
     const id = obtenerParametroURL("id");
+    const registros = JSON.parse(localStorage.getItem('registros')) || [];
+    const registro = registros.find(r => r.id == id);
     const registroDetalle = document.getElementById("registroDetalle");
 
     try {
