@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(window.location.search);
-    const index = params.get('index');
-    cargarDatosFormulario(index);
+    const index = params.get('id');
+    cargarDatosFormulario(id);
 });
 
 // Cargar los datos del registro en el formulario de edición
-function cargarDatosFormulario(index) {
+function cargarDatosFormulario(id) {
     const registros = JSON.parse(localStorage.getItem('registros')) || [];
-    if (index !== null && registros[index]) {
-        const registro = registros[index];
+    if (id !== null && registros[id]) {
+        const registro = registros[id];
         document.getElementById('nombre').value = registro.nombre;
         document.getElementById('fecha_nacimiento').value = registro.fechaNacimiento;
         document.getElementById('edad').value = registro.edad;
@@ -30,10 +30,11 @@ function cargarDatosFormulario(index) {
 // Guardar la edición
 function guardarEdicion(event) {
     event.preventDefault();
-    const index = new URLSearchParams(window.location.search).get('index');
+    const id = new URLSearchParams(window.location.search).get('id');
     const registros = JSON.parse(localStorage.getItem('registros')) || [];
     
     const registroEditado = {
+        id: Numbre(id),
         nombre: document.getElementById('nombre').value,
         fechaNacimiento: document.getElementById('fecha_nacimiento').value,
         edad: document.getElementById('edad').value,
@@ -55,7 +56,7 @@ function guardarEdicion(event) {
         }
     };
 
-    registros[index] = registroEditado;
+    registros[id] = registroEditado;
     localStorage.setItem('registros', JSON.stringify(registros));
 
     window.location.href = "consultar.html"; // Redirigir al listado después de guardar
