@@ -52,9 +52,19 @@ async function guardarRegistro() {
     };
 
     const nuevoRegistro = {
-        nombre, fechaNacimiento, edad, alergias, enfermedad, medicamentos,
-        seguroMedico, domicilio, nacionalidad, contacto1, contacto2
-    };
+    id: Date.now(), // ID único basado en la fecha actual
+    nombre,
+    fechaNacimiento,
+    edad,
+    alergias,
+    enfermedad,
+    medicamentos,
+    seguroMedico,
+    domicilio,
+    nacionalidad,
+    contacto1: { nombre: contacto1Nombre, parentesco: contacto1Parentesco, telefono: contacto1Telefono },
+    contacto2: { nombre: contacto2Nombre, parentesco: contacto2Parentesco, telefono: contacto2Telefono }
+};
 
     try {
         const docRef = await addDoc(collection(db, "registros"), nuevoRegistro);
@@ -99,7 +109,7 @@ async function mostrarRegistros() {
                 <p><strong>Edad:</strong> ${registro.edad}</p>
                 <p><strong>Alergias:</strong> ${registro.alergias}</p>
                 <p><strong>Enfermedad:</strong> ${registro.enfermedad}</p>
-                <button onclick="window.location.href='ver.html?id=${doc.id}'">Ver</button>
+                <button onclick="window.location.href='ver.html?id=${registro.id}'">Ver</button>
                 <button onclick="eliminarRegistro(${index})">Eliminar</button>
         `;
         listaRegistros.appendChild(divRegistro);
