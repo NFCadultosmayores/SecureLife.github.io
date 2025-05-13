@@ -25,10 +25,12 @@ function calcularEdad() {
 }
 
 // Guardar un nuevo registro
-function guardarRegistro() {
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+async function guardarRegistro() {
     const nombre = document.getElementById("nombre").value;
     const fechaNacimiento = document.getElementById("fecha_nacimiento").value;
-    calcularEdad(); // Asegurarse de calcular la edad antes de guardar
+    calcularEdad();
     const edad = document.getElementById("edad").value;
     const alergias = document.getElementById("alergias").value;
     const enfermedad = document.getElementById("enfermedad").value;
@@ -37,32 +39,30 @@ function guardarRegistro() {
     const domicilio = document.getElementById("domicilio").value;
     const nacionalidad = document.getElementById("nacionalidad").value;
 
-    const contacto1Nombre = document.getElementById("contacto1_nombre").value;
-    const contacto1Parentesco = document.getElementById("contacto1_parentesco").value;
-    const contacto1Telefono = document.getElementById("contacto1_telefono").value;
-    const contacto2Nombre = document.getElementById("contacto2_nombre").value;
-    const contacto2Parentesco = document.getElementById("contacto2_parentesco").value;
-    const contacto2Telefono = document.getElementById("contacto2_telefono").value;
-
-    const nuevoRegistro = {
-        nombre,
-        fechaNacimiento,
-        edad,
-        alergias,
-        enfermedad,
-        medicamentos,
-        seguroMedico,
-        domicilio,
-        nacionalidad,
-        contacto1: { nombre: contacto1Nombre, parentesco: contacto1Parentesco, telefono: contacto1Telefono },
-        contacto2: { nombre: contacto2Nombre, parentesco: contacto2Parentesco, telefono: contacto2Telefono }
+    const contacto1 = {
+        nombre: document.getElementById("contacto1_nombre").value,
+        parentesco: document.getElementById("contacto1_parentesco").value,
+        telefono: document.getElementById("contacto1_telefono").value
     };
 
-    const registros = obtenerRegistros();
-    registros.push(nuevoRegistro);
-    guardarEnLocalStorage(registros);
+    const contacto2 = {
+        nombre: document.getElementById("contacto2_nombre").value,
+        parentesco: document.getElementById("contacto2_parentesco").value,
+        telefono: document.getElementById("contacto2_telefono").value
+    };
 
-    window.location.href = "consultar.html"; // Redirigir al listado
+    const nuevoRegistro = {
+        nombre, fechaNacimiento, edad, alergias, enfermedad, medicamentos,
+        seguroMedico, domicilio, nacionalidad, contacto1, contacto2
+    };
+
+    try {
+        const docRef = await addDoc(collection(db, "registros"), nuevoRegistro);
+        alert("Registro guardado con ID: " + docRef.id);
+        window.location.href = `ver.html?id=${docRef.id}`;
+    } catch (error) {
+        alert("Error al guardar registro: " + error.message);
+    }
 }
 
 // Mostrar todos los registros guardados
@@ -76,30 +76,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function mostrarRegistros() {
-    const registros = obtenerRegistros();
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+async function mostrarRegistros() {
     const listaRegistros = document.getElementById("listaRegistros");
     listaRegistros.innerHTML = '';
 
-    if (registros.length === 0) {
-        listaRegistros.innerHTML = '<p>No hay registros disponibles.</p>';
-        return;
-    }
+    try {
+        const querySnapshot = await getDocs(collection(db, "registros"));
+        if (querySnapshot.empty) {
+            listaRegistros.innerHTML = '<p>No hay registros disponibles.</p>';
+            return;
+        }
 
-    registros.forEach((registro, index) => {
-        const divRegistro = document.createElement("div");
-        divRegistro.classList.add("registro");
-        divRegistro.innerHTML = `
-            <p><strong>Nombre:</strong> ${registro.nombre}</p>
-            <p><strong>Fecha de nacimiento:</strong> ${registro.fechaNacimiento}</p>
-            <p><strong>Edad:</strong> ${registro.edad}</p>
-            <p><strong>Alergias:</strong> ${registro.alergias}</p>
-            <p><strong>Enfermedad:</strong> ${registro.enfermedad}</p>
-            <button onclick="verDetalles(${index})">Ver</button>
-            <button onclick="eliminarRegistro(${index})">Eliminar</button>
+        querySnapshot.forEach((doc) => {
+            const registro = doc.data();
+            const divRegistro = document.createElement("div");
+            divRegistro.classList.add("registro");
+            divRegistro.innerHTML = `
+                <p><strong>Nombre:</strong> ${registro.nombre}</p>
+                <p><strong>Fecha de nacimiento:</strong> ${registro.fechaNacimiento}</p>
+                <p><strong>Edad:</strong> ${registro.edad}</p>
+                <p><strong>Alergias:</strong> ${registro.alergias}</p>
+                <p><strong>Enfermedad:</strong> ${registro.enfermedad}</p>
+                <button onclick="window.location.href='ver.html?id=${doc.id}'">Ver</button>
+                <button onclick="eliminarRegistro(${index})">Eliminar</button>
         `;
         listaRegistros.appendChild(divRegistro);
     });
+   } catch (error) {
+        listaRegistros.innerHTML = `<p>Error al cargar registros: ${error.message}</p>`;
+    }
 }
 
 // Función para ver los detalles de un registro
